@@ -10,7 +10,7 @@ import numpy as np
 from datetime import datetime
 from collections import deque
 
-# High-Level Module Imports
+
 try:
     from core.vision import DroneDetector
     from core.tracking import KinematicTracker
@@ -36,12 +36,12 @@ class SkyShieldKernel:
         self.frame_counter = 0
         self.uptime_start = time.time()
         
-        # Data Pipelines and Telemetry Buffers
+        
         self.video_buffer = queue.Queue(maxsize=15)
         self.telemetry_log = deque(maxlen=150)
         self.fps_averager = deque(maxlen=50)
         
-        # Subsystem Initialization
+        
         self._execute_boot_sequence()
 
     def _initialize_logging(self):
@@ -127,7 +127,7 @@ class SkyShieldKernel:
             
             self.is_target_locked = locked
             
-            # Engagement Authorization
+            
             if locked:
                 self.is_engagement_active = self.effector.verify_fire_permission(
                     threat_data['score'], 
@@ -147,12 +147,12 @@ class SkyShieldKernel:
         h, w, _ = frame.shape
         cx, cy = w // 2, h // 2
 
-        # Reticle and Optical Crosshair
+        
         cv2.line(frame, (cx - 50, cy), (cx + 50, cy), (0, 255, 0), 1)
         cv2.line(frame, (cx, cy - 50), (cx, cy + 50), (0, 255, 0), 1)
         cv2.circle(frame, (cx, cy), 180, (0, 255, 0), 1)
 
-        # Telemetry Dashboard
+        
         overlay = frame.copy()
         cv2.rectangle(overlay, (20, 20), (320, 180), (15, 15, 15), -1)
         frame = cv2.addWeighted(overlay, 0.6, frame, 0.4, 0)
@@ -166,12 +166,12 @@ class SkyShieldKernel:
         engage_color = (0, 0, 255) if self.is_engagement_active else (0, 255, 0)
         cv2.putText(frame, f"EFFECTOR: {engage_status}", (40, 140), 1, 1, engage_color, 2)
 
-        # Threat Identification Rendering
+        
         if threat:
             x1, y1, x2, y2 = threat['box']
             threat_color = (0, 0, 255) if self.is_target_locked else (0, 255, 255)
             
-            # Tracking Box
+           
             cv2.rectangle(frame, (x1, y1), (x2, y2), threat_color, 2)
             cv2.putText(frame, f"TRK_ID: AERIAL_THREAT_CONF_{int(threat['score']*100)}%", 
                         (x1, y1-15), 1, 0.9, threat_color, 2)
@@ -185,7 +185,7 @@ class SkyShieldKernel:
         """Orchestrates the primary operational lifecycle."""
         self.logger.info("Initializing SkyShield Real-Time Cycle...")
         
-        # Launch I/O Thread
+        
         io_thread = threading.Thread(target=self.capture_stream_worker, daemon=True)
         io_thread.start()
 
@@ -196,20 +196,20 @@ class SkyShieldKernel:
                 if not self.video_buffer.empty():
                     active_frame = self.video_buffer.get()
                     
-                    # Performance Metrics
+                    
                     time_delta = time.time() - time_anchor
                     fps = 1 / time_delta if time_delta > 0 else 0
                     time_anchor = time.time()
                     self.fps_averager.append(fps)
                     smoothed_fps = sum(self.fps_averager) / len(self.fps_averager)
 
-                    # Neural Analysis and Tactical Logic
+                    
                     threat_assessment = self._orchestrate_logic(active_frame)
 
-                    # Augmented Reality HUD Rendering
+                    
                     output_frame = self._render_tactical_hud(active_frame, threat_assessment, smoothed_fps)
 
-                    # Visualization
+                    
                     cv2.imshow("SKYSHIELD TACTICAL C2 INTERFACE v1.0", output_frame)
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -228,6 +228,6 @@ class SkyShieldKernel:
         self.logger.info("Kernel cleanup complete. All subsystems offline.")
 
 if __name__ == "__main__":
-    # SkyShield Entry Point
+    
     kernel_instance = SkyShieldKernel("config.yaml")
     kernel_instance.execute_operational_cycle()
