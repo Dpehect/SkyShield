@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import logging
 import os
 
-# Configure professional logging
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 logger = logging.getLogger("SkyShield.ModelBuilder")
 
@@ -43,22 +43,22 @@ class DroneIdentificationNet(nn.Module):
         super(DroneIdentificationNet, self).__init__()
         logger.info("Initializing SkyShield Neural Architecture...")
 
-        # Initial Feature Extraction
+        
         self.in_planes = 64
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
 
-        # Deep Feature Layers (Residual Stacks)
+        
         self.layer1 = self._make_layer(64, 2, stride=1)
         self.layer2 = self._make_layer(128, 2, stride=2)
         self.layer3 = self._make_layer(256, 2, stride=2)
         self.layer4 = self._make_layer(512, 2, stride=2)
 
-        # Global Average Pooling replaces high-parameter Flattening
+       
         self.adaptive_pool = nn.AdaptiveAvgPool2d((1, 1))
 
-        # Classification Head
+       
         self.classifier = nn.Sequential(
             nn.Flatten(),
             nn.Linear(512, 256),
@@ -100,12 +100,12 @@ def export_model_weights(target_path="models/drone_model.pt"):
         total_params = sum(p.numel() for p in model.parameters())
         logger.info(f"Model Complexity: {total_params:,} parameters.")
 
-        # Simulate a forward pass to verify integrity
+        
         dummy_input = torch.randn(1, 3, 224, 224)
         output = model(dummy_input)
         logger.info(f"Verification Pass Success. Output Tensor Shape: {output.shape}")
 
-        # Save weights
+        
         torch.save(model.state_dict(), target_path)
         logger.info(f"Neural weights successfully exported to {target_path}")
 
