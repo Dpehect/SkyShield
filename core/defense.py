@@ -33,10 +33,10 @@ class DefenseProtocol:
         """Active RF interference protocol for 2.4GHz/5.8GHz disruption."""
         try:
             self.logger.warning("DEPLOYING ACTIVE COUNTERMEASURES")
-            # Low-level GPIO control logic would interface here
-            # self.gpio_write(self.io_pin, HIGH)
+            
+          
             time.sleep(3.5)
-            # self.gpio_write(self.io_pin, LOW)
+            
             self.last_activation = time.time()
             return True
         except Exception as e:
