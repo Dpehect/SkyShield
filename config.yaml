@@ -1,12 +1,12 @@
-# SkyShield System Manifest
+
 system:
   device_name: "SkyShield-Alpha-C2"
-  operation_mode: "AUTONOMOUS" # MANUAL, SEMI, AUTONOMOUS
+  operation_mode: "AUTONOMOUS" 
   log_level: "INFO"
   min_confidence: 0.75
 
 camera:
-  source: 0 # Index for USB or CSI camera
+  source: 0 
   resolution: [1280, 720]
   fps_target: 30
   stream_buffer_size: 15
@@ -16,14 +16,15 @@ camera:
 
 tracking:
   pid_gains:
-    x: [0.15, 0.01, 0.08] # Proportional, Integral, Derivative
+    x: [0.15, 0.01, 0.08] 
     y: [0.15, 0.01, 0.08]
   constraints:
     max_angular_velocity: 85.0
-    deadzone_radius: 12 # Pixels
+    deadzone_radius: 12 
+
 
 defense:
   effector_pin: 21
-  safety_interlock: true # Digital safety switch
-  engagement_window: 3.5 # Duration in seconds
-  thermal_cooldown: 15.0 # Minimum seconds between pulses
+  safety_interlock: true 
+  engagement_window: 3.5 
+  thermal_cooldown: 15.0 
