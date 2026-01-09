@@ -12,7 +12,7 @@ class DroneDetector:
     def __init__(self, model_path, min_confidence=0.75):
         self.logger = logging.getLogger("SkyShield.Vision")
         self.confidence = min_confidence
-        self.target_class_ids = [4, 24]  # Standard COCO drone/aircraft indices
+        self.target_class_ids = [4, 24]  
         
         try:
             self.model = YOLO(model_path)
@@ -39,7 +39,7 @@ class DroneDetector:
         results = self.model.predict(
             source=processed_input,
             conf=self.confidence,
-            device='0',  # Assuming CUDA 0
+            device='0',  
             verbose=False
         )
 
@@ -49,7 +49,7 @@ class DroneDetector:
                 conf = float(box.conf[0])
                 cls = int(box.cls[0])
                 
-                # Spatial data extraction
+               
                 coords = box.xyxy[0].tolist()
                 x1, y1, x2, y2 = map(int, coords)
                 centroid = (int((x1 + x2) / 2), int((y1 + y2) / 2))
@@ -66,12 +66,12 @@ class DroneDetector:
         if not potential_threats:
             return None
 
-        # Return the highest probability threat based on score and proximity
+        
         return max(potential_threats, key=lambda x: x['score'])
 
     def validate_trajectory(self, threat_history):
         """Filters out non-ballistic movement patterns (e.g., birds/leaves)."""
         if len(threat_history) < 10:
             return False
-        # Logic for linear regression on movement vectors goes here
+        
         return True
