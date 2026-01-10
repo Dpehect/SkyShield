@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkyShield Radar</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <h1>SkyShield</h1>
+        <div class="meta">
+          <div id="time">--:--:--</div>
+          <div id="info">Connecting…</div>
+        </div>
+      </header>
+
+      <div class="maingrid">
+        <div class="radar-wrap">
+          <canvas id="radar"></canvas>
+        </div>
+        <aside class="sidebar">
+          <div class="panel">
+            <div class="panel-title">Locked Target</div>
+            <div id="lock-info">No target locked</div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">Recent Detections</div>
+            <ul id="recent-list"></ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+    <script src="/app.js"></script>
+  </body>
+</html>

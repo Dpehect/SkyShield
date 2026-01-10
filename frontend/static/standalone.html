@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkyShield — Radar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/standalone.css" />
+  </head>
+  <body>
+    <div class="container-fluid py-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="text-success" style="letter-spacing:1px">SkyShield</h2>
+        <div>
+          <button id="btn-start" class="btn btn-success btn-sm">Start</button>
+          <button id="btn-stop" class="btn btn-outline-light btn-sm">Stop</button>
+          <div class="form-check form-switch d-inline ms-2">
+            <input class="form-check-input" type="checkbox" id="toggle-theme">
+            <label class="form-check-label" for="toggle-theme">Alternate Theme</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="row gx-3">
+        <div class="col-lg-8">
+          <div class="radar-wrap p-2 position-relative">
+            <canvas id="bg-canvas" class="bg-canvas" aria-hidden="true"></canvas>
+            <canvas id="radar" aria-label="Radar canvas"></canvas>
+            <div id="lock-banner" class="lock-banner"></div>
+            <div id="scanner-reticle" class="reticle" aria-hidden="true"></div>
+            <div class="scan-overlay" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="panel mb-2">
+            <div class="panel-title">Locked Target</div>
+            <div id="lock-info" class="lock-details">
+              <div class="ld-line" id="ld-label">No target locked</div>
+              <div class="ld-row"><small class="text-muted">Status:</small> <span id="ld-status">N/A</span></div>
+              <div class="ld-row"><small class="text-muted">Last seen:</small> <span id="ld-lastseen">-</span></div>
+              <div class="ld-row"><small class="text-muted">Pos:</small> <span id="ld-pos">-</span></div>
+              <div class="ld-row"><small class="text-muted">Alt:</small> <span id="ld-alt">-</span></div>
+              <div class="mt-2 d-flex gap-2">
+                <button id="btn-neutralize" class="btn btn-danger btn-sm" disabled>Etkisiz Hale Getir</button>
+                <div class="flex-grow-1">
+                  <label class="small text-muted mb-1 d-block">Hedef için işlem</label>
+                  <div class="input-group input-group-sm">
+                    <select id="action-select" class="form-select">
+                      <option value="monitor">İzle (Monitor)</option>
+                      <option value="mark">İşaretle (Mark)</option>
+                      <option value="neutralize">Etkisiz Hale Getir (Neutralize)</option>
+                      <option value="report">Raporla (Report)</option>
+                    </select>
+                    <button id="btn-apply-action" class="btn btn-outline-light">Uygula</button>
+                  </div>
+                </div>
+              </div>
+              <div class="small text-muted mt-1">Not an active countermeasure — this marks the target in the system only.</div>
+              <div class="form-check form-switch small mt-2">
+                <input class="form-check-input" type="checkbox" id="quick-neutralize">
+                <label class="form-check-label small text-muted" for="quick-neutralize">Hızlı Etkisiz (onay istemez)</label>
+              </div>
+            </div>
+          </div>
+          <div class="panel mb-2">
+            <div class="panel-title">Recent Detections</div>
+            <ul id="recent-list" class="list-unstyled mb-0"></ul>
+          </div>
+          <div class="panel mb-2">
+            <div class="panel-title">Controls</div>
+            <div id="controls">
+              <div class="mb-2">
+                <label for="scan-speed" class="form-label small text-muted">Scan Speed</label>
+                <input id="scan-speed" aria-label="Scan Speed" type="range" min="0.01" max="0.12" step="0.005" value="0.035" class="form-range">
+              </div>
+              <div class="mb-2">
+                <label for="particle-density" class="form-label small text-muted">Particle Density</label>
+                <select id="particle-density" aria-label="Particle Density" class="form-select form-select-sm"><option value="0">Off</option><option value="0.3">Low</option><option value="0.6" selected>Medium</option><option value="1.0">High</option></select>
+              </div>
+              <div class="form-check form-switch mb-2">
+                <input class="form-check-input" aria-label="Toggle Starfield" type="checkbox" id="toggle-stars" checked>
+                <label class="form-check-label small text-muted" for="toggle-stars">Starfield</label>
+                <input class="form-check-input ms-3" aria-label="Toggle Sound" type="checkbox" id="toggle-sound">
+                <label class="form-check-label small text-muted ms-1" for="toggle-sound">Sound</label>
+              </div>
+              <div class="small text-muted">Tip: slide <strong>Scan Speed</strong> to accelerate the reticle.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="mt-3 text-muted small">Open this file directly in a browser or serve the `frontend/static/` directory with any static file server.</footer>
+    </div>
+
+    <!-- Neutralize confirmation modal (simulated flag only) -->
+    <div class="modal fade" id="confirmNeutralizeModal" tabindex="-1" aria-labelledby="confirmNeutralizeLabel" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmNeutralizeLabel">Etkisiz Hale Getir</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body small">Bu işlem yalnızca hedefi sistemde <strong>işaretler</strong>. Aktif müdahale içermez. Emin misiniz?</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">İptal</button>
+            <button type="button" id="confirm-neutralize" class="btn btn-danger btn-sm">Evet, işaretle</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="confirmActionModal" tabindex="-1" aria-labelledby="confirmActionLabel" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmActionLabel">İşlemi Onayla</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body small" id="confirmActionBody">Seçilen işlemi uygulamak istediğinizden emin misiniz?</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">İptal</button>
+            <button type="button" id="confirm-action" class="btn btn-danger btn-sm">Evet, uygula</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/standalone.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

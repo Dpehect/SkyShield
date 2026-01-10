@@ -1,0 +1,14 @@
+fastapi==0.95.2
+uvicorn[standard]==0.22.0
+aiofiles==23.1.0
+python-dotenv==1.0.0
+pydantic==2.5.1
+sqlmodel==0.0.8
+loguru==0.7.0
+httpx==0.26.2
+pytest==7.4.0
+# Optional (enable explicitly):
+# scapy==2.5.0
+# torch==2.2.0
+# torchvision==0.18.0
+# ultralytics==8.0.0
